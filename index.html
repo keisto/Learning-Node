@@ -4,8 +4,81 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Chatty</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+        />
     </head>
     <body>
-        Hello World
+        <main class="container is-desktop">
+            <section class="hero is-link">
+                <div class="hero-body">
+                    <h1 class="title">Send Message</h1>
+                    <p class="subtitle">Make it count</p>
+                    <br />
+                    <input
+                        id="name"
+                        class="input is-medium"
+                        type="text"
+                        placeholder="Name"
+                    />
+                    <textarea
+                        id="message"
+                        class="textarea mt-5"
+                        placeholder="Message"
+                    ></textarea>
+                    <button id="send" class="button mt-5 is-medium">
+                        Send
+                    </button>
+                </div>
+            </section>
+            <section class="hero is-secondary px-5 py-5">
+                <h1 class="title">Messages</h1>
+                <div id="messages"></div>
+            </section>
+        </main>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+            socket.on("message", addMessage);
+
+            function addMessage(message) {
+                const messages = document.getElementById("messages");
+                messages.innerHTML += `
+                        <h4 class="is-size-3"> ${message.name} </h4>
+                        <p> ${message.message} </p>
+                    `;
+            }
+
+            function getMessages() {
+                fetch("http://localhost:3000/messages")
+                    .then((response) => response.json())
+                    .then((data) => data.forEach(addMessage));
+            }
+
+            function postMessages(message) {
+                fetch("http://localhost:3000/messages", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(message),
+                });
+            }
+
+            (function () {
+                getMessages();
+
+                document
+                    .getElementById("send")
+                    .addEventListener("click", () => {
+                        const message = {};
+                        message.name = document.getElementById("name").value;
+                        message.message =
+                            document.getElementById("message").value;
+
+                        postMessages(message);
+                    });
+            })();
+        </script>
     </body>
 </html>
