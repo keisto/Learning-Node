@@ -23,6 +23,11 @@ app.get("/messages", (req, res) => {
   Message.find({}, (error, messages) => res.send(messages));
 });
 
+app.get("/messages/:user", (req, res) => {
+  const user = req.params.user;
+  Message.find({ name: user }, (error, messages) => res.send(messages));
+});
+
 app.post("/messages", async (req, res) => {
   try {
     const message = new Message(req.body);
